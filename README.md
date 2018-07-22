@@ -4,7 +4,7 @@ Custom vimrc.
 
 ## Installation
   
-  1. `curl https://raw.github.com//ProjetAlpha/vimrc/.vimrc > ~/.vimrc`
+  1.  Copy raw .vimrc file. Then, run `vim ~/vimrc` and paste the raw file.
  
   2. `git clone https://github.com/VundleVim/Vundle.vim.git ~/.vim/bundle/Vundle.vim`
       
