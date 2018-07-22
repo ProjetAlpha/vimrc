@@ -1,8 +1,8 @@
 " WARNING, need ctags for tagbar (sudo apt-get install exuberant-ctags). Default shorcut : F8.
 
 " *** Plugin setup ***
-set rtp+=$HOME/.vim/bundle/Vundle.vim/ " MAC: ~/.vim/bundle/Vundle.vim/
-call vundle#begin('$HOME/.vim/bundle/') " MAC: vundle#begin()
+set rtp+=~/.vim/bundle/Vundle.vim/
+call vundle#begin()
 
 Plugin 'VundleVim/Vundle.vim'
 Plugin 'git://git.wincent.com/command-t.git'
