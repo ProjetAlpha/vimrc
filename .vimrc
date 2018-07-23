@@ -17,18 +17,27 @@ Plugin 'kien/ctrlp.vim'
 call vundle#end()
 filetype plugin indent on
 
-" *** Autorun nerdTree, open every buffer in its own tabpage and return to last edit position when opening files***
+" *** Autorun nerdTree, quickfix and return to last edit position when opening files ***
+
+let NERDTreeMinimalUI = 1
+let NERDTreeDirArrows = 1
+let NERDTreeQuitOnOpen = 1
+let NERDTreeAutoDeleteBuffer = 1
+
 au StdinReadPre * let s:std_in=1
 au VimEnter * if argc() == 0 && !exists("s:std_in") | NERDTree | endif
 
-au StdinReadPre * let s:std_in=1
-au VimEnter * if argc() == 1 && isdirectory(argv()[0]) && !exists("s:std_in") | exe 'NERDTree' argv()[0] | wincmd p | ene | endif
+autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTreeType") && b:NERDTreeType == "primary") | q | endif
 
-au BufAdd,BufNewFile * nested tab sball
+" au BufAdd,BufNewFile * nested tab sball --- Open every buffer in its own tab
+
+autocmd QuickFixCmdPost [^l]* nested copen
+autocmd QuickFixCmdPost    l* nested lwindow
 
 au BufReadPost * if line("'\"") > 1 && line("'\"") <= line("$") | exe "normal! g'\"" | endif
 
 " *** Shortcuts ***
+
 map <C-n> :NERDTreeToggle<CR>
 map <C-f> :NERDTreeFind<CR>
 map <C-b> :NERDTreeClose<CR>
@@ -42,26 +51,19 @@ map <leader>tc :tabclose<cr>
 map <leader>tm :tabmove
 map <leader>t<leader> :tabnext
 
+nmap <F11> :cclose<cr>
+nmap <F12> :copen<cr>
+
 " *** Style and indent ***
+
 set nu
 set background=dark
 set mouse=a
-set expandtab
-set smarttab
 set ruler
-set ai
-set si
-set shiftwidth=4
-set tabstop=4
-set wrap
-set so=7
-set wildmenu
-set backspace=eol,start,indent
-set whichwrap+=<,>,h,l
-set smartcase
 set hlsearch
 set incsearch
 set listchars=tab:>-
+set autowrite
 set laststatus=2
 set statusline=
 set statusline +=%1*\ %n\ %*            "buffer number
@@ -78,6 +80,46 @@ hi User2 guifg=#dd3333 guibg=#222222
 hi User3 guifg=#ff66ff guibg=#222222
 hi User4 guifg=#a0ee40 guibg=#222222
 hi User5 guifg=#eeee40 guibg=#222222
-
-" syntax enable
 colorscheme gruvbox
+"syntax enable
+
+" *** Compile shorcut ***
+
+set makeprg=gcc\ -Wall\ -Werror\ -Wextra\ -o\ %<\ %
+nnoremap <F4> :make<CR> 
+
+" *** This command open your output in new window. Work with gcc compiler.***
+
+command! -complete=file -nargs=* Run call s:RunShellCommand('./'.<q-args>)
+nnoremap<F5> :Run %<CR>
+
+" *** Helper function: truncate file extension and open new tab with your result ***
+
+function! s:RunShellCommand(cmdline)
+  echo a:cmdline
+  let index = 0
+  let tr = 0
+  let len = len(a:cmdline)
+  while index <= len
+	if a:cmdline[index + 1] == '.' && index > 0
+		  let tr = index
+ 	endif
+	let index += 1
+  endwhile
+
+  let expanded_cmdline = a:cmdline[:tr - len]
+  for part in split(a:cmdline, ' ')
+     if part[0] =~ '\v[%#<]'
+        let expanded_part = fnameescape(expand(part))
+        let expanded_cmdline = substitute(expanded_cmdline, part, expanded_part, '')
+     endif
+  endfor
+  botright new
+  setlocal buftype=nofile bufhidden=wipe nobuflisted noswapfile nowrap
+  call setline(1, 'You entered: '. expanded_cmdline)
+  call setline(2, 'Your result below')
+  call setline(3,substitute(getline(2),'.','=','g'))
+  execute '$read !'. expanded_cmdline
+  setlocal nomodifiable
+  1
+endfunction
