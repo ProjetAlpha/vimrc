@@ -90,7 +90,7 @@ nnoremap <F4> :make<CR>
 
 " *** This command open your output in new window. Work with gcc compiler.***
 
-command! -complete=file -nargs=* Run call s:RunShellCommand('./'.<q-args>)
+command! -complete=file -nargs=1 Run call s:RunShellCommand('./'.<q-args>)
 nnoremap<F5> :Run %<CR>
 
 " *** Helper function: truncate file extension and open new tab with your result ***
